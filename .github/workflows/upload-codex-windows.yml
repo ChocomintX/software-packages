@@ -1,0 +1,31 @@
+name: Upload Codex Windows Installer
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/upload-codex-windows.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: v1.0.0
+  CODEX_VERSION: 0.111.0
+  ASSET_NAME: codex-x86_64-pc-windows-msvc-0.111.0.exe
+  SOURCE_URL: https://github.com/openai/codex/releases/download/rust-v0.111.0/codex-x86_64-pc-windows-msvc.exe
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download upstream installer
+        run: curl -fL "$SOURCE_URL" -o "$ASSET_NAME"
+
+      - name: Upload asset to this repository release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$RELEASE_TAG" "$ASSET_NAME" --clobber --repo "$GITHUB_REPOSITORY"
